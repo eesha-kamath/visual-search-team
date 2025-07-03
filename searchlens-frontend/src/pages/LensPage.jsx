@@ -34,7 +34,7 @@ export default function LensPage() {
     formData.append("file", imageFile);  // ✅ Name matches FastAPI
 
     try {
-      const response = await fetch("https://your-backend-service.onrender.com/detect-objects", {
+      const response = await fetch("https://visual-search-interface.onrender.com/detect-objects", {
         method: "POST",
         body: formData,
       });
