@@ -17,9 +17,10 @@ app.add_middleware(
 )
 
 @app.post("/detect-objects")
-async def detect_objects(image: UploadFile = File(...)):
+async def detect_objects(file: UploadFile = File(...)):
     try:
-        contents = await image.read()
+        contents = await file.read()
+        print("Got file:", file.filename)
         objects = detect_objects_from_bytes(contents)
         return {"objects": objects}
     except Exception as e:

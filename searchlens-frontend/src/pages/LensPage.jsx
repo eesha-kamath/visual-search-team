@@ -31,22 +31,26 @@ export default function LensPage() {
     }
 
     const formData = new FormData();
-    formData.append("file", imageFile);  // ✅ Name matches FastAPI
+    formData.append("file", imageFile);  // Name matches FastAPI
 
     try {
       const response = await fetch("https://visual-search-interface.onrender.com/detect-objects", {
+        //"https://visual-search-interface.onrender.com/detect-objects"
+        //"http://127.0.0.1:8000/detect-objects"
         method: "POST",
         body: formData,
       });
-
+      
+      console.log("Raw response:", response);
+      
       const data = await response.json();
       console.log("Detected Objects:", data.objects);
       if (data.objects && Array.isArray(data.objects)) {
-  setDetectedObjects(data.objects);
-} else {
-  console.warn("No objects returned:", data);
-  alert("No objects were detected in the image.");
-}
+        setDetectedObjects(data.objects);
+      } else {
+        console.warn("No objects returned:", data);
+        alert("No objectsss were detected in the image.");
+      }
 
     } catch (error) {
       console.error("Error:", error);
