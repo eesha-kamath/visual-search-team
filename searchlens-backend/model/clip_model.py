@@ -4,13 +4,14 @@ import torch
 import clip
 import pandas as pd
 from PIL import Image
+from fastapi.responses import JSONResponse
 
 # Initialize CLIP model
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
 
 # Path setup for Google Drive folder structure
-BASE_DIR = "/content/drive/MyDrive/WalmartSparkathon"
+BASE_DIR = "./data"
 CATEGORIES_CSV = os.path.join(BASE_DIR, "categories.csv")
 
 def run_clip_on_image(image_bytes: bytes) -> dict:
@@ -78,4 +79,5 @@ def run_clip_on_image(image_bytes: bytes) -> dict:
         }
 
     except Exception as e:
-        return {"error": str(e)}
+        return {}
+

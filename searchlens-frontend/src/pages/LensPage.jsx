@@ -29,7 +29,8 @@ export default function LensPage() {
     formData.append("file", imageFile); //"image"
 
     try {
-      const res = await fetch("https://visual-search-interface.onrender.com/detect-attributes", {
+      console.log("fetch");
+      const res = await fetch("http://127.0.0.1:8000/detect-attributes", {
         //"https://visual-search-interface.onrender.com/
         //http://127.0.0.1:8000/
         method: "POST",
@@ -37,11 +38,17 @@ export default function LensPage() {
       });
       const data = await res.json();
 
-      if (!data.category || !data.attributes) {
-        alert("Detection failed.");
+      if (!data.category) {
+        alert("category failed.");
+        return;
+      }
+      
+      else if(!data.attributes){
+        alert("attibutes failed.");
         return;
       }
 
+      console.log("generate");
       const urlRes = await fetch("http://127.0.0.1:8000/generate-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
