@@ -3,8 +3,7 @@ import React, { useState, useRef } from "react";
 export default function LensPage() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
-  const [detectedObjects, setDetectedObjects] = useState([]);
-  const inputFileRef = useRef(null);
+  const inputFileRef = useRef(null);  
 
 
   // Trigger hidden file input for upload
@@ -19,42 +18,46 @@ export default function LensPage() {
       const imageURL = URL.createObjectURL(file);
       setSelectedImage(imageURL);
       setImageFile(file);
-      setDetectedObjects([]); // Reset objects on new image
     }
   };
 
   // Send to backend
   const handleSendToBackend = async () => {
-    if (!imageFile) {
-      alert("No image selected!");
-      return;
-    }
+    if (!imageFile) return alert("No image selected!");
 
     const formData = new FormData();
-    formData.append("file", imageFile);  // Name matches FastAPI
+    formData.append("file", imageFile); //"image"
 
     try {
-      const response = await fetch("https://visual-search-interface.onrender.com/detect-objects", {
-        //"https://visual-search-interface.onrender.com/detect-objects"
-        //"http://127.0.0.1:8000/detect-objects"
+      const res = await fetch("http://127.0.0.1:8000/detect-attributes", {
         method: "POST",
         body: formData,
       });
-      
-      console.log("Raw response:", response);
-      
-      const data = await response.json();
-      console.log("Detected Objects:", data.objects);
-      if (data.objects && Array.isArray(data.objects)) {
-        setDetectedObjects(data.objects);
-      } else {
-        console.warn("No objects returned:", data);
-        alert("No objectsss were detected in the image.");
+      const data = await res.json();
+
+      if (!data.category || !data.attributes) {
+        alert("Detection failed.");
+        return;
       }
 
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Failed to detect objects.");
+      const urlRes = await fetch("http://127.0.0.1:8000/generate-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: data.category,
+          attributes: data.attributes,
+        }),
+      });
+
+      const urlData = await urlRes.json();
+      if (urlData.url) {
+        window.location.href = urlData.url;
+      } else {
+        alert("URL generation failed.");
+      }
+
+    } catch (e) {
+      alert("Error: " + e.message);
     }
   };
 
@@ -102,21 +105,6 @@ export default function LensPage() {
         </div>
       )}
 
-      {/* Detected Object Buttons */}
-      {detectedObjects.length > 0 && (
-        <div style={{ marginTop: "2rem" }}>
-          <p style={styles.resultPrompt}>
-            We detected the following objects. Which one do you want to search for?
-          </p>
-          <div style={styles.objectButtonContainer}>
-            {detectedObjects.map((obj, index) => (
-              <button key={index} style={styles.objectButton}>
-                {obj}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -162,5 +150,22 @@ const styles = {
   cursor: "pointer",
   marginTop: "1rem",
   },
-
+  resultPrompt: {
+    fontSize: "1rem",
+    marginBottom: "1rem",
+  },
+  objectButtonContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: "0.75rem",
+  },
+  objectButton: {
+    padding: "0.6rem 1rem",
+    fontSize: "0.9rem",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    backgroundColor: "#f0f0f0",
+    cursor: "pointer",
+  },
 };
