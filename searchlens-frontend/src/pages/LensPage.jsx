@@ -29,7 +29,9 @@ export default function LensPage() {
     formData.append("file", imageFile); //"image"
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/detect-attributes", {
+      const res = await fetch("https://visual-search-interface.onrender.com/detect-attributes", {
+        //"https://visual-search-interface.onrender.com/
+        //http://127.0.0.1:8000/
         method: "POST",
         body: formData,
       });
